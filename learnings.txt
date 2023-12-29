@@ -1,0 +1,121 @@
+installing libraries:
+2 npm libraries from main page
+install native stack library
+
+creating folders
+src -> app.jsx file into it
+screens folder -> Home.tsx and Details.tsx
+
+Home screen -> bring text in centre and visible color.
+same for details screen
+
+clean app.tsx
+import libraries
+1. import {NavigationContainer} from "@react-navigation/native" 
+   -> gives us a container. we wrap our app in it. have info of routes in it and can move from one to another
+2. import {createNativeStackNavigator} from "@react-navigation/native-stack" 
+3. import both screens
+
+DOUBT: WHEN IMPORTING, WHEN DO WE USE {} AND WHEN JUST NAME?
+DOUBT 2: what is props, like const app = ({props}) => {}
+DOUBT 3: revise callback
+DOUBT 4: onPress={() => navigation.push("Details", {producctId:"86"})}, WHERE CAN WE JUST USE DIRECTLY THIS: {}
+
+rootStackParamList, export it too (to use in other screens). 
+two screens home and details screen. details screen -> productId and its data type
+
+before the app,
+createNativeStackNavigator and save it in a constant 
+ex: const Stack = createNativeStackNavigator()
+as we move to different screen, it expects data to be passed on to it, to check its type, we have rootCheckParamList
+createNativeStackNavigator<rootStackParamList>()
+
+navigation is responsible for throwing you to screens, not app.
+
+we need one initial screen, that as app loads up, load this screen
+
+return(
+    <NavigationContainer>
+        <Stack.Navigator initialRouteName='Home'> // use what you are using, if drawer then drawer like that  //still no idea what home is
+ 
+            <Stack.Screen 
+            name='Home'  //still not clear
+            component={Home} //loads home
+            options={{
+                title: 'trending products'  //show on screen on top. not necessary, can show it in screen details too.
+            }}
+            />
+
+            <Stack.Screen 
+            name='Details'  //still not clear
+            component={Details} //loads details
+            options={{
+                title: 'product details'  //show on screen on top. not necessary, can show it in screen details too.
+            }}
+            />
+
+        </Stack.Navigator>
+    </NavigationContainer>
+)
+
+going inside Home screen (AND HOW TO SEND DATA)
+
+import {NativeStackScreenProps} from "@react-navigation/native-stack"
+import rootstackParamList
+
+setting up the typeSafety
+
+type HomeProps = NativeStackScreenProps<rootstackParamList, 'Home'>
+its a syntax, <name of where you are bringing it from, what you are bringing>
+
+const Home = ({navigation}: HomeProps) => {}   // navigation prop will be available to you in all screens by default, because its a part of that stack
+in home screen, keep a text, in center, visible color
+
+<Button
+title= 'go to details'
+onPress={() => navigation.navigate("Details", {productId: "86"})}  -> Way 1 of doing things
+onPress={() => navigation.navigate("Details")}  -> Way 2 of doing things, bit then in rootStackParamList, delete the value and keep it undefined
+onPress={() => navigation.push("Details", {producctId:"86"})}  -> Way 3 of doing things
+
+/>
+
+//you can navigate to screen with variety of methods. always ocnsider this as a stack, where you keep on loading the screen if yo are loading the default one, replaces replaces the entire stack
+
+
+going inside details screen (AND HOW TO receive DATA)
+
+import {NativeStackScreenProps} from "@react-navigation/native-stack"
+import rootstackParamList
+
+setting up the typeSafety
+
+type DetailsProps = NativeStackScreenProps<rootstackParamList, 'Details'>
+its a syntax, <name of where you are bringing it from, what you are bringing>
+
+if you dont' want to use navigation prop as we did in home, then there is a another way too: u can use hooks to grab this navigation directly and not aceept naviagtion firectly as a prop
+
+import {useNavigation} from '@react-navigation/native'
+import {NativeStackNavigationProp} from "@react-navigation/native-stack"  
+above two are required to accept hook and not aceept naviagtion firectly as a prop
+
+how to accept data: data comes in routes
+const details = ({route}) => {}
+if wwant to use navigation here, here/s how: const details = ({route, navigation}) => {}
+const details = ({route}: DetailsProps) => {}
+
+const {productID} = route.params (give me this)
+const navigation = useNavigation<NativeStackNavigationProp<rootStackParamList>>()
+
+to display the data:
+return(
+    <View>
+        <Text>Details: {productId}</Text>
+        <Button
+        title: 'go to home'
+        onPress(() => navigation.navigate('Home')) //way one
+        onPress(() => navigation.goBack()) //way two, but only goes back one screen
+        onPress(() => navigation.pop(2)) //way three, goes back the number of screen u want it to
+        onPress(() => navigation.popToTop()) //way four, stack all values empty
+        />
+    </View>
+)
